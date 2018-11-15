@@ -1,0 +1,21 @@
+Date12/3
+Name:e
+Current money in account:120
+No of litcoins:1
+No of Etherum:0
+No of Ripple:0
+****************
+Date12
+Name:w
+Current money in account:1
+No of litcoins:1
+No of Etherum:0
+No of Ripple:0
+****************
+Date19/4/18
+Name:Nidhi
+Current money in account:200
+No of litcoins:0
+No of Etherum:2
+No of Ripple:0
+****************
