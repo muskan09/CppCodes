@@ -1,0 +1,125 @@
+// Program to create a sparse matrix
+
+#include <iostream>
+#include <ctime>
+
+int** generate_sparse_matrix(int r, int c)
+{
+	int* arr = new int[r * c];
+	
+	for (int i = 0; i < r * c; ++i)
+		arr[i] = 0;
+
+	int t = 0;
+
+	while (t < r * c / 3)
+	{
+		int x = rand() % (r * c);
+		if (!arr[x])
+		{
+			arr[x] = (rand() % 10) + 1;
+			++t;
+		}
+	}
+	
+	int** sparse_matrix = new int* [r];
+	for (int i = 0; i < r; ++i) sparse_matrix[i] = new int[c];
+
+	for (int i = 0; i < r; ++i)
+		for (int j = 0; j < c; ++j)
+			sparse_matrix[i][j] = arr[(i + 1) * (j + 1) - 1];
+
+	return sparse_matrix;
+}
+void print_matrix(int** m, int r, int c)
+{
+	std::cout << std::endl;
+	for (int i = 0; i < r; ++i)
+	{
+		for (int j = 0; j < c; ++j)
+			std::cout << m[i][j] << "\t";
+		std::cout << std::endl;
+	}
+}
+int count_cols(int** sm, int r, int c)
+{
+	int ctr = 0;
+
+	for (int i = 0; i < r; ++i)
+		for (int j = 0; j < c; ++j)
+			if (sm[i][j]) ++ctr;
+
+	return ++ctr;
+}
+int** convert_matrix(int cols, int** sm, int sm_r, int sm_c)
+{
+	int** m = new int* [3];
+	for (int i = 0; i < 3; ++i) m[i] = new int[cols];
+	int c = 1;
+
+	m[0][0] = sm_r;
+	m[1][0] = sm_c;
+	m[2][0] = cols - 1;
+
+	for (int i = 0; i < sm_r; ++i)
+		for (int j = 0; j < sm_c; ++j)
+		{
+			if (sm[i][j])
+			{
+				m[0][c] = i;
+				m[1][c] = j;
+				m[2][c] = sm[i][j];
+				++c;
+			}
+		}
+
+	return m;
+}
+int** fill_matrix(int r, int c)
+{
+	int** m = new int* [r];
+	for (int i = 0; i < r; ++i) m[i] = new int[c];
+
+	std::cout << "Enter values to fill the matrix:\n";
+	for (int i = 0; i < r; ++i)
+		for (int j = 0; j < c; ++j)
+			std::cin >> m[i][j];
+
+	return m;
+
+}
+int main()
+{
+	srand(time(0));
+
+	std::cout << "Enter the number of rows in your matrix: ";
+	int r;
+	std::cin >> r;
+
+	std::cout << "Enter the number of columns in your matrix: ";
+	int c;
+	std::cin >> c;
+
+	int** sparse_matrix = new int* [r];
+	for (int i = 0; i < r; ++i) sparse_matrix[i] = new int[c];
+
+	// sparse_matrix = generate_sparse_matrix(r, c);
+	sparse_matrix = fill_matrix(r, c);
+	std::cout << "\nTHE MATRIX IS: " << std::endl;
+	print_matrix(sparse_matrix,r, c);
+
+	int cols = count_cols(sparse_matrix, r, c);
+	
+	// a sparse matrix will always have only 3 rows. (r, c, v)
+	int** converted_matrix = new int* [3];
+	for (int i = 0; i < r; ++i) converted_matrix[i] = new int[cols];
+
+	std::cout << std::endl << "===========================================" << std::endl;
+
+	converted_matrix = convert_matrix(cols, sparse_matrix, r, c);
+	std::cout << "\nTHE CONVERTED SPARSE MATRIX IS: " << std::endl;
+	print_matrix(converted_matrix, 3, cols);
+
+
+	return 0;
+}
