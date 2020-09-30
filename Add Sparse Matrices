@@ -1,0 +1,187 @@
+// Program to add two sparse matrices
+
+#include <iostream>
+#include <ctime>
+
+int** generate_sparse_matrix(int r, int c)
+{
+	int* arr = new int[r * c];
+
+	for (int i = 0; i < r * c; ++i)
+		arr[i] = 0;
+
+	int t = 0;
+
+	while (t < r * c / 3)
+	{
+		int x = rand() % (r * c);
+		if (!arr[x])
+		{
+			arr[x] = (rand() % 10) + 1;
+			++t;
+		}
+	}
+
+	int** sparse_matrix = new int* [r];
+	for (int i = 0; i < r; ++i) sparse_matrix[i] = new int[c];
+
+	for (int i = 0; i < r; ++i)
+		for (int j = 0; j < c; ++j)
+			sparse_matrix[i][j] = arr[(i + 1) * (j + 1) - 1];
+
+	return sparse_matrix;
+}
+void print_matrix(int** m, int r, int c)
+{
+	std::cout << std::endl;
+	for (int i = 0; i < r; ++i)
+	{
+		for (int j = 0; j < c; ++j)
+			std::cout << m[i][j] << "\t";
+		std::cout << std::endl;
+	}
+}
+int count_cols(int** sm, int r, int c)
+{
+	int ctr = 0;
+
+	for (int i = 0; i < r; ++i)
+		for (int j = 0; j < c; ++j)
+			if (sm[i][j]) ++ctr;
+
+	return ++ctr;
+}
+int** convert_matrix(int cols, int** sm, int sm_r, int sm_c)
+{
+	int** m = new int* [3];
+	for (int i = 0; i < 3; ++i) m[i] = new int[cols];
+	int c = 1;
+
+	m[0][0] = sm_r;
+	m[1][0] = sm_c;
+	m[2][0] = cols - 1;
+
+	for (int i = 0; i < sm_r; ++i)
+		for (int j = 0; j < sm_c; ++j)
+		{
+			if (sm[i][j])
+			{
+				m[0][c] = i;
+				m[1][c] = j;
+				m[2][c] = sm[i][j];
+				++c;
+			}
+		}
+
+	return m;
+}
+int** fill_matrix(int r, int c)
+{
+	int** m = new int* [r];
+	for (int i = 0; i < r; ++i) m[i] = new int[c];
+
+	std::cout << "Enter values to fill the matrix:\n";
+	for (int i = 0; i < r; ++i)
+		for (int j = 0; j < c; ++j)
+			std::cin >> m[i][j];
+
+	return m;
+
+}
+void add_matrices(int** m1, int** m2, int c1, int c2, int rows, int cols)
+{
+	int** m = new int* [rows];
+	for (int i = 0; i < cols; ++i) m[i] = new int[cols];
+
+	for (int i = 0; i < rows; ++i)
+		for (int j = 0; j < cols; ++j)
+			m[i][j] = 0;
+
+	int i = 1, j = 1;
+
+	while (i < c1 && j < c2)
+	{
+		if (m1[0][i] < m2[0][j] || ((m1[0][i] == m2[0][j]) && m1[1][i] < m2[1][j]))
+		{
+			m[m1[0][i]][m1[1][i]] = m1[2][i];
+			++i;
+		}
+		else if (m1[0][i] > m2[0][j] || ((m1[0][i] == m2[0][j]) && m1[1][i] > m2[1][j]))
+		{
+			m[m2[0][j]][m2[1][j]] = m2[2][j];
+			++j;
+		}
+		else
+		{
+			m[m1[0][i]][m1[1][i]] = m1[2][i] + m2[2][j];
+			++i;
+			++j;
+		}
+	}
+	if (i != c1)
+	{
+		for (int k = i; k < c1; ++k)
+		{
+			m[m1[0][k]][m1[1][k]] = m1[2][k];
+		}
+	}
+	if (j != c2)
+	{
+		for (int k = j; k < c2; ++k)
+		{
+			m[m2[0][k]][m2[1][k]] = m2[2][k];
+		}
+	}
+	int c = count_cols(m, rows, cols);
+	int** matrix = convert_matrix(c, m, rows, cols);
+	print_matrix(matrix, 3, c);
+
+}
+int main()
+{
+	srand(time(0));
+
+	std::cout << "Enter the number of rows in your matrices: ";
+	int r;
+	std::cin >> r;
+
+	std::cout << "Enter the number of columns in your matrices: ";
+	int c;
+	std::cin >> c;
+
+
+
+	int** m1 = new int* [r];
+	for (int i = 0; i < r; ++i) m1[i] = new int[c];
+
+	int** m2 = new int* [r];
+	for (int i = 0; i < r; ++i) m2[i] = new int[c];
+
+
+	m1 = generate_sparse_matrix(r, c);
+	m2 = generate_sparse_matrix(r, c);
+
+	int cols1 = count_cols(m1, r, c);
+	int cols2 = count_cols(m2, r, c);
+
+
+	int** mat1 = new int* [3];
+	for (int i = 0; i < r; ++i) mat1[i] = new int[cols1];
+
+	int** mat2 = new int* [3];
+	for (int i = 0; i < r; ++i) mat2[i] = new int[cols2];
+
+	mat1 = convert_matrix(cols1, m1, r, c);
+	mat2 = convert_matrix(cols2, m2, r, c);
+
+	std::cout << "\nTHE FIRST SPARSE MATRIX IS: " << std::endl;
+	print_matrix(mat1, 3, cols1);
+
+	std::cout << "\nTHE SECOND SPARSE MATRIX IS: " << std::endl;
+	print_matrix(mat2, 3, cols2);
+
+	std::cout << "\nADDITION OF THESE MATRICES GIVES: " << std::endl;
+	add_matrices(mat1, mat2, cols1, cols2, r, c);
+
+	return 0;
+}
